@@ -8,14 +8,14 @@
 
 # Change the value of LOCATION to match your city
 dwm_weather() {
-    LOCATION=London
+    LOCATION=Derventa
 
-    if [ "$IDENTIFIER" = "unicode" ]; then
-        DATA=$(curl -s wttr.in/$LOCATION?format=1)
-        export __DWM_BAR_WEATHER__="${SEP1} ${DATA} ${SEP2}" 
+    if [ "$IDENTIFIER" = "" ]; then
+        DATA=$(curl -s curl "https://api.openweathermap.org/data/2.5/weather?q=Derventa&appid=d6380fb4a05fea422589ea5b5dbfc35c&units=metric" | jq -r .main.temp)
+        printf "${SEP1} ${DATA} ${SEP2}" 
     else
-        DATA=$(curl -s wttr.in/$LOCATION?format=1 | grep -o ".[0-9].*")
-        export __DWM_BAR_WEATHER__="${SEP1} WEA ${DATA} ${SEP2}"
+        DATA=$(curl -s curl "https://api.openweathermap.org/data/2.5/weather?q=Derventa&appid=d6380fb4a05fea422589ea5b5dbfc35c&units=metric" | jq -r .main.temp)
+        printf "${SEP1}WEA +${DATA}${SEP2}"
     fi
 }
 

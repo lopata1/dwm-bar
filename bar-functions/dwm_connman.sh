@@ -8,7 +8,7 @@
 
 dwm_connman () {
     printf "%s" "$SEP1"
-    if [ "$IDENTIFIER" = "unicode" ]; then
+    if [ "$IDENTIFIER" = "" ]; then
         printf "🌐 "
     else
         printf "NET "
@@ -17,23 +17,27 @@ dwm_connman () {
     # get the connmanctl service name
     # this is a UID starting with 'vpn_', 'wifi_', or 'ethernet_', we dont care for the vpn one
     # if the servicename string is empty, there is no online connection
-    SERVICENAME=$(connmanctl services | grep -E "^\*AO|^\*O" | grep -Eo 'wifi_.*|ethernet_.*')
+    IFS=':'
+    ISCONNECTED=$(nmcli -t dev status | grep wlan0)
+    read -a values<<<"$ISCONNECTED"
+    ISCONNECTED=${values[2]}
 
-    if [ ! "$SERVICENAME" ]; then
+    if [ "$ISCONNECTED" = "disconnected" ]; then
         printf "OFFLINE"
         printf "%s\n" "$SEP2"
         return
     else
-        STRENGTH=$(connmanctl services "$SERVICENAME" | sed -n -e 's/Strength =//p' | tr -d ' ')
-        CONNAME=$(connmanctl services "$SERVICENAME" | sed -n -e 's/Name =//p' | tr -d ' ')
-        IP=$(connmanctl services "$SERVICENAME" | grep 'IPv4 =' | awk '{print $5}' | sed -n -e 's/Address=//p' | tr -d ',')
+	WIFINAME=${values[3]}
+	STRENGTH=$(nmcli -t -f ssid,signal device wifi list | grep $WIFINAME)
+	read -a values<<<"$STRENGTH"
+	STRENGTH=${values[1]}
     fi
 
     # if STRENGTH is empty, we have a wired connection
     if [ "$STRENGTH" ]; then
-        printf "%s %s %s%%" "$IP" "$CONNAME" "$STRENGTH"
+        printf "%s str %s" "$WIFINAME" "$STRENGTH"
     else
-        printf "%s %s" "$IP" "$CONNAME"
+        printf "%s" "$WIFINAME"
     fi
 
     printf "%s\n" "$SEP2"

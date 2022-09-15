@@ -11,7 +11,7 @@ dwm_pulse () {
     STATE=$(pamixer --get-mute)
     
     printf "%s" "$SEP1"
-    if [ "$IDENTIFIER" = "unicode" ]; then
+    if [ "$IDENTIFIER" = "" ]; then
         if [ "$STATE" = "true" ] || [ "$VOL" -eq 0 ]; then
             printf "🔇"
         elif [ "$VOL" -gt 0 ] && [ "$VOL" -le 33 ]; then
